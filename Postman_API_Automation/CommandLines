@@ -1,0 +1,27 @@
+app prefernce
+-------------
+abacus.lateral.interview.config
+rpo.createCandidateDefault.config
+ats.config
+
+
+
+
+
+vinod@vinod-Latitude-3400:~/hirepro_automation/Postman_Scripts/Postman_API_Automation$ newman run AO-AMSIN.postman_collection.json -e AO-AMSIN.postman_environment.json -d InputData/Abacus_AO.csv -r htmlextra
+
+vinod@vinod-Latitude-3400:~/hirepro_automation/Postman_Scripts/Postman_API_Automation$ newman run AO-AMSIN.postman_collection.json -e AO-AMSIN.postman_environment.json -d InputData/Abacus_AO.csv -r htmlextra --verbose
+
+
+------------------------------------- AO ------------------------------------------------------
+vinod@vinod-Latitude-3400:~/hirepro_automation/Postman_Scripts/Postman_API_Automation$ newman run AO.postman_collection.json -e AO-AMSIN.postman_environment.json -d InputData/Abacus_AO_Amsin.csv -r htmlextra --reporter-htmlextra-export ./newman/Sprint_166_AO_amsin.html
+
+
+
+------------------------------------- ATCI ------------------------------------------------------
+vinod@vinod-Latitude-3400:~/hirepro_automation/Postman_Scripts/Postman_API_Automation$ newman run ATCI.postman_collection.json -e ATCI-AMSIN.postman_environment.json -d InputData/Abacus_ATCI_Amsin.csv -r htmlextra --reporter-htmlextra-export ./newman/Sprint_166_ATCI_amsin.html
+
+
+------------------------------------- Zwayam ------------------------------------------------------
+vinod@vinod6139:~/hirepro_automation/Postman_Scripts/Postman_API_Automation$ newman run Zwayam.postman_collection.json -e Zwayam-AMSIN.postman_environment.json -d InputData/Abacus_Zwayam_Amsin.csv -r htmlextra --reporter-htmlextra-export ./newman/Sprint_176fstcycle_Zwayam_amsin.html
+
