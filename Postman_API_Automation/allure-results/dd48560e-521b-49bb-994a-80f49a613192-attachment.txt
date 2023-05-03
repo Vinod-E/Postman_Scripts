@@ -1,0 +1,1 @@
+{"status": "KO", "statusId": 500, "error": {"errorCode": 500, "message": "Unable to proceed the request"}}

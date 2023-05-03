@@ -1,0 +1,1 @@
+{"status": "OK", "data": {"message": "More than one face detected.", "isValidPhoto": false}, "statusCode": 200}

@@ -14,14 +14,26 @@ vinod@vinod-Latitude-3400:~/hirepro_automation/Postman_Scripts/Postman_API_Autom
 
 
 ------------------------------------- AO ------------------------------------------------------
-vinod@vinod-Latitude-3400:~/hirepro_automation/Postman_Scripts/Postman_API_Automation$ newman run AO.postman_collection.json -e AO-AMSIN.postman_environment.json -d InputData/Abacus_AO_Amsin.csv -r htmlextra --reporter-htmlextra-export ./newman/Sprint_166_AO_amsin.html
+vinod@vinod-Latitude-3400:~/hirepro_automation/Postman_Scripts/Postman_API_Automation$ newman run AO-AMSIN.postman_collection.json -e AO-AMSIN.postman_environment.json -d InputData/Abacus_AO_Amsin.csv -r htmlextra --reporter-htmlextra-export ./newman/Sprint_166_AO_amsin.html
 
 
 
 ------------------------------------- ATCI ------------------------------------------------------
-vinod@vinod-Latitude-3400:~/hirepro_automation/Postman_Scripts/Postman_API_Automation$ newman run ATCI.postman_collection.json -e ATCI-AMSIN.postman_environment.json -d InputData/Abacus_ATCI_Amsin.csv -r htmlextra --reporter-htmlextra-export ./newman/Sprint_166_ATCI_amsin.html
+vinod@vinod-Latitude-3400:~/hirepro_automation/Postman_Scripts/Postman_API_Automation$ newman run ATCI-AMSIN.postman_collection.json -e ATCI-AMSIN.postman_environment.json -d InputData/Abacus_ATCI_Amsin.csv -r htmlextra --reporter-htmlextra-export ./newman/Sprint_166_ATCI_amsin.html
 
 
 ------------------------------------- Zwayam ------------------------------------------------------
-vinod@vinod6139:~/hirepro_automation/Postman_Scripts/Postman_API_Automation$ newman run Zwayam.postman_collection.json -e Zwayam-AMSIN.postman_environment.json -d InputData/Abacus_Zwayam_Amsin.csv -r htmlextra --reporter-htmlextra-export ./newman/Sprint_176fstcycle_Zwayam_amsin.html
+vinod@vinod6139:~/hirepro_automation/Postman_Scripts/Postman_API_Automation$ newman run Zwayam-AMSIN.postman_collection.json -e Zwayam-AMSIN.postman_environment.json -d InputData/Abacus_Zwayam_Amsin.csv -r htmlextra --reporter-htmlextra-export ./newman/Sprint_176fstcycle_Zwayam_amsin.html
+
+
+--------------------------------------------allure reports-----------------------------------------------
+Three steps to Install in UBUNTU
+1.sudo apt-get install default-jre
+2.wget https://github.com/allure-framework/allure2/releases/download/2.18.1/allure_2.18.1-1_all.deb
+3.sudo dpkg -i allure_2.18.1-1_all.deb
+
+https://www.npmjs.com/package/newman-reporter-allure?activeTab=readme
+
+
+
 

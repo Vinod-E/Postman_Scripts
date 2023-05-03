@@ -1,0 +1,16 @@
+// pm.sendRequest({
+//     url: pm.environment.get("domain") + '/py/oauth2/fc9ae4e9ea91434facd78728f575ace8/access_token/',
+//     method: 'POST',
+//     header: {
+//         'content-type': 'application/json',
+//     },
+//     body: {
+//         mode: 'raw',
+//         raw: JSON.stringify({
+//             "client_id": pm.environment.get("client_id"),
+//             "client_secret": pm.environment.get("client_secret")
+//             })}
+// }, function (err, res) {
+//     console.log(res.json())
+//     pm.environment.set("OAuth", "bearer "+res.json().access_token);
+// });

@@ -1,0 +1,1 @@
+{"status": "KO", "statusId": 1500, "error": {"errorCode": 1500, "message": "Number of participants exceeded the limit."}}

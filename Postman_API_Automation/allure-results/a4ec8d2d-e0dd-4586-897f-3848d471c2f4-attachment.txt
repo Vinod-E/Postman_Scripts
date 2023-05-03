@@ -1,0 +1,1 @@
+{"status": "OK", "data": {"message": "No face detected.", "isValidPhoto": false}, "statusCode": 200}
