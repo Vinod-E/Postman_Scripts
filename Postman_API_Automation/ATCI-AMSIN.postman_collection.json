@@ -1076,6 +1076,536 @@
 			"description": "Abacus Lateral ATCI"
 		},
 		{
+			"name": "Interview Schedule Cases ATCI",
+			"item": [
+				{
+					"name": "Save Preferences - No Key",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({",
+									"    url: pm.environment.get(\"domain\") + pm.environment.get(\"loginapi\"),",
+									"    method: 'POST',",
+									"    header: {",
+									"        'content-type': 'application/json',",
+									"    },",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({",
+									"            \"LoginName\": pm.environment.get(\"uname\"), ",
+									"            \"Password\": pm.environment.get(\"pwd\"), ",
+									"            \"UserName\": pm.environment.get(\"uname\"),",
+									"            \"TenantAlias\": pm.environment.get(\"tenant\")",
+									"            })}",
+									"}, function (err, res) {",
+									"    console.log(res.json())",
+									"    pm.environment.set(\"token\", res.json().Token);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response) {",
+									"    pm.test(`*** S A V E D - A P P - P R E F E R E N C E ***  ==>  ${response.Type}`, () => {",
+									"        //console.log(response.data.id)",
+									"        // Write your condition -  vinod",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Auth-Token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"AppPreference\": {\n        \"Id\": 4146,\n        \"Content\": \"{\\\"requirement\\\":{\\\"collegeType\\\":29394,\\\"hiringType\\\":37377},\\\"assessmentTemplateId\\\":450,\\\"domain\\\":\\\"amsin.hirepro.in\\\",\\\"job\\\":{\\\"YearsOfPassing\\\":52,\\\"BusinessUnitId\\\":4749,\\\"SelectionProcessId\\\":3549,\\\"HiringManagerRoleId\\\":15206,\\\"LocationId\\\":25274,\\\"ReqType\\\":39601,\\\"HiringManagerId\\\":50208},\\\"locationId\\\":25274,\\\"canceledStatusId\\\":173277,\\\"event\\\":{\\\"cityId\\\":25156,\\\"campusVenueId\\\":91,\\\"provinceId\\\":25075,\\\"campuses\\\":[91]},\\\"maxParticipants\\\":4}\",\n        \"Type\": \"abacus.lateral.interview.config\"\n    },\n    \"IsTenantGlobal\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/common/common_app_utils/save_app_preferences/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"common",
+								"common_app_utils",
+								"save_app_preferences",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Schedule_interview - Date format",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"DateTime\", moment().format((\"YYYY/MM/DD HH:59:59\")));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"var links = response.data.interviewerLinks[0].interviewLink;",
+									"console.log(links)",
+									"",
+									"if (response.data) {",
+									"    pm.test(`*** I N T E R V I E W - I D ***  ==>  ${response.data.interviewId}`, () => {",
+									"        pm.environment.set(\"IR\",response.data.interviewId);",
+									"    });",
+									"     pm.test(`*** I N T E R V I E W - L I N K ***  ==>  ${links}`, () => {",
+									"        pm.environment.set(\"IRlink\", links);",
+									"    })",
+									"}",
+									"// else{",
+									"//     pm.test(`*** S C H E D U L E - F A I L E D ***  ==>  ${response.error.message}`)",
+									"// }"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"abacusCandidateId\":\"{{CandidateAbacusId}}\",\n\t\"isSaml\": true,\n    \"isCandidateSaml\": true,\n    \"interviewName\": \"{{InterviewStage}}\",\n\t\"interviewTime\":\"{{DateTime}}\",\n\t\"interviewerDetails\":[\n\t{\n\t\t\"firstName\":\"{{int_firstName}}\",\n\t\t\"middleName\":\"{{int_middleName}}\",\n\t\t\"lastName\":\"{{int_lastName}}\",\n\t\t\"email\":\"{{int_email}}\"\n\t}],\n\t\n\t\"physicalInterviewDetails\":{\n\t\t\"location\":\"Bangalore\"\n\t}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/crpo/abacus/atci/schedule_interview",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"crpo",
+								"abacus",
+								"atci",
+								"schedule_interview"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Interviews Cancel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"var env_ir = pm.variables.get(\"IR\");",
+									"",
+									"if (response.data) {",
+									"    pm.test(`*** C A N C E L L E D - I N T E R V I E W - I D ***  ==>  ${response.data.success}`, () => {",
+									"        //console.log(response.data.id)",
+									"        // Write your condition -  vinod",
+									"    })",
+									"}",
+									"else{",
+									"    pm.test(`*** C A N C E L L E D - I N T E R V I E W  - F A I L E D ***  ==>  ${response.error.message}`)",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": {{IR}},\n    \"comment\": \"Cancel by Vinod through Postman-Automation\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/crpo/abacus/atci/cancelInterviews",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"crpo",
+								"abacus",
+								"atci",
+								"cancelInterviews"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Schedule_interview - Date format/ 72 hrs",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"DateTime\", moment().subtract(3, \"days\").format((\"YYYY/MM/DD HH:59:59\")));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"console.log(response.error.message)",
+									"",
+									"if (response) {",
+									"    pm.test(`*** I N T E R V I E W - S C H E D U L E - F A I L U R E ***  ==>  ${response.error.message}`, () => {});",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"abacusCandidateId\":\"{{CandidateAbacusId}}\",\n\t\"isSaml\": true,\n    \"isCandidateSaml\": true,\n    \"interviewName\": \"{{InterviewStage}}\",\n\t\"interviewTime\":\"{{DateTime}}\",\n\t\"interviewerDetails\":[\n\t{\n\t\t\"firstName\":\"{{int_firstName}}\",\n\t\t\"middleName\":\"{{int_middleName}}\",\n\t\t\"lastName\":\"{{int_lastName}}\",\n\t\t\"email\":\"{{int_email}}\"\n\t}],\n\t\n\t\"physicalInterviewDetails\":{\n\t\t\"location\":\"Bangalore\"\n\t}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/crpo/abacus/atci/schedule_interview",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"crpo",
+								"abacus",
+								"atci",
+								"schedule_interview"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Save Preferences - Past Key 96 hrs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response) {",
+									"    pm.test(`*** S A V E D - A P P - P R E F E R E N C E ***  ==>  ${response.Type}`, () => {",
+									"        //console.log(response.data.id)",
+									"        // Write your condition -  vinod",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Auth-Token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"AppPreference\": {\n        \"Id\": 4146,\n        \"Content\": \"{\\\"requirement\\\":{\\\"collegeType\\\":29394,\\\"hiringType\\\":37377},\\\"assessmentTemplateId\\\":450,\\\"domain\\\":\\\"amsin.hirepro.in\\\",\\\"job\\\":{\\\"YearsOfPassing\\\":52,\\\"BusinessUnitId\\\":4749,\\\"SelectionProcessId\\\":3549,\\\"HiringManagerRoleId\\\":15206,\\\"LocationId\\\":25274,\\\"ReqType\\\":39601,\\\"HiringManagerId\\\":50208},\\\"locationId\\\":25274,\\\"canceledStatusId\\\":173277,\\\"event\\\":{\\\"cityId\\\":25156,\\\"campusVenueId\\\":91,\\\"provinceId\\\":25075,\\\"campuses\\\":[91]},\\\"maxParticipants\\\":4,\\\"pastAllowedInterviewTimeInHours\\\":96}\",\n        \"Type\": \"abacus.lateral.interview.config\"\n    },\n    \"IsTenantGlobal\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/common/common_app_utils/save_app_preferences/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"common",
+								"common_app_utils",
+								"save_app_preferences",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Schedule_interview - Date format/ 72 hrs(3days)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"DateTime\", moment().subtract(3, \"days\").format((\"YYYY/MM/DD HH:59:59\")));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"var links = response.data.interviewerLinks[0].interviewLink;",
+									"console.log(links)",
+									"",
+									"if (response.data) {",
+									"    pm.test(`*** I N T E R V I E W - I D ***  ==>  ${response.data.interviewId}`, () => {",
+									"        pm.environment.set(\"IR\",response.data.interviewId);",
+									"    });",
+									"     pm.test(`*** I N T E R V I E W - L I N K ***  ==>  ${links}`, () => {",
+									"        pm.environment.set(\"IRlink\", links);",
+									"    })",
+									"}",
+									"// else{",
+									"//     pm.test(`*** S C H E D U L E - F A I L E D ***  ==>  ${response.error.message}`)",
+									"// }"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"abacusCandidateId\":\"{{CandidateAbacusId}}\",\n\t\"isSaml\": true,\n    \"isCandidateSaml\": true,\n    \"interviewName\": \"{{InterviewStage}}\",\n\t\"interviewTime\":\"{{DateTime}}\",\n\t\"interviewerDetails\":[\n\t{\n\t\t\"firstName\":\"{{int_firstName}}\",\n\t\t\"middleName\":\"{{int_middleName}}\",\n\t\t\"lastName\":\"{{int_lastName}}\",\n\t\t\"email\":\"{{int_email}}\"\n\t}],\n\t\n\t\"physicalInterviewDetails\":{\n\t\t\"location\":\"Bangalore\"\n\t}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/crpo/abacus/atci/schedule_interview",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"crpo",
+								"abacus",
+								"atci",
+								"schedule_interview"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Interviews Cancelled",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"var env_ir = pm.variables.get(\"IR\");",
+									"",
+									"if (response.data) {",
+									"    pm.test(`*** C A N C E L L E D - I N T E R V I E W - I D ***  ==>  ${response.data.success}`, () => {",
+									"        //console.log(response.data.id)",
+									"        // Write your condition -  vinod",
+									"    })",
+									"}",
+									"else{",
+									"    pm.test(`*** C A N C E L L E D - I N T E R V I E W  - F A I L E D ***  ==>  ${response.error.message}`)",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": {{IR}},\n    \"comment\": \"Cancel by Vinod through Postman-Automation\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/crpo/abacus/atci/cancelInterviews",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"crpo",
+								"abacus",
+								"atci",
+								"cancelInterviews"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Schedule_interview - Date format/ 120 hrs",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"DateTime\", moment().subtract(5, \"days\").format((\"YYYY/MM/DD HH:59:59\")));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"console.log(response.error.message)",
+									"",
+									"if (response) {",
+									"    pm.test(`*** I N T E R V I E W - S C H E D U L E - F A I L U R E ***  ==>  ${response.error.message}`, () => {});",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"abacusCandidateId\":\"{{CandidateAbacusId}}\",\n\t\"isSaml\": true,\n    \"isCandidateSaml\": true,\n    \"interviewName\": \"{{InterviewStage}}\",\n\t\"interviewTime\":\"{{DateTime}}\",\n\t\"interviewerDetails\":[\n\t{\n\t\t\"firstName\":\"{{int_firstName}}\",\n\t\t\"middleName\":\"{{int_middleName}}\",\n\t\t\"lastName\":\"{{int_lastName}}\",\n\t\t\"email\":\"{{int_email}}\"\n\t}],\n\t\n\t\"physicalInterviewDetails\":{\n\t\t\"location\":\"Bangalore\"\n\t}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/crpo/abacus/atci/schedule_interview",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"crpo",
+								"abacus",
+								"atci",
+								"schedule_interview"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Validations ATCI",
 			"item": [
 				{
