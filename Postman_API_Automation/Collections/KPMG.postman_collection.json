@@ -1,0 +1,809 @@
+{
+	"info": {
+		"_postman_id": "c0b0f4a1-e4ea-43a8-84c4-43720c7e1bdf",
+		"name": "KPMG",
+		"description": "ATS_FLOWS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16515442",
+		"_collection_link": "https://lively-desert-951249.postman.co/workspace/API-Automation~3ebbf534-5ac4-4b69-9be0-96b2624fdb0e/collection/16515442-c0b0f4a1-e4ea-43a8-84c4-43720c7e1bdf?action=share&creator=16515442&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "Oauth",
+			"item": [
+				{
+					"name": "Get Access Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response.token_type === \"bearer\") {",
+									"    pm.test(`*** T O K E N - C R E A T E D ***  ==>  ${response.token_type}`, () => {",
+									"        pm.environment.set(\"OAuth\", \"bearer \"+ response.access_token);",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"client_id\": \"{{client_id}}\",\n\t\"client_secret\": \"{{client_secret}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/oauth2/{{integrationGuid}}/access_token/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"oauth2",
+								"{{integrationGuid}}",
+								"access_token",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Change Applicant Status",
+			"item": [
+				{
+					"name": "Applicant Status Change",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({",
+									"    url: pm.environment.get(\"domain\") + pm.environment.get(\"loginapi\"),",
+									"    method: 'POST',",
+									"    header: {",
+									"        'content-type': 'application/json',",
+									"    },",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({",
+									"            \"LoginName\": pm.environment.get(\"uname\"), ",
+									"            \"Password\": pm.environment.get(\"pwd\"), ",
+									"            \"UserName\": pm.environment.get(\"uname\"),",
+									"            \"TenantAlias\": pm.environment.get(\"tenant\")",
+									"            })}",
+									"}, function (err, res) {",
+									"    console.log(res.json())",
+									"    pm.environment.set(\"token\", res.json().Token);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response) {",
+									"    pm.test(`*** C H A N G E - A P P L I C A N T - S T A T U S ***  ==>  ${response.data.ContextId}`, () => {",
+									"        //console.log(response.data.id)",
+									"        // Write your condition -  vinod",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Auth-Token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ApplicantIds\": [\n        507505,\n        507503,\n        507501,\n        507499,\n        507497,\n        507495,\n        507493,\n        507491,\n        507489,\n        507487,\n        507485,\n        507483,\n        507481,\n        507479\n    ],\n    \"EventId\": 2907,\n    \"JobRoleId\": 2509,\n    \"ToStatusId\": 76877,\n    \"Sync\": \"False\",\n    \"Comments\": \"Postman Automation\",\n    \"InitiateStaffing\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/crpo/applicant/api/v1/applicantStatusChange/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"crpo",
+								"applicant",
+								"api",
+								"v1",
+								"applicantStatusChange",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Fetch Status Cases",
+			"item": [
+				{
+					"name": "Fetch Status - Success API",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"startdate\", moment().subtract(1, \"days\").format((\"YYYY-MM-DD HH:59:59\")));",
+									"pm.environment.set(\"enddate\", moment().format((\"YYYY-MM-DD HH:59:59\")));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response.data.candidates) {",
+									"    pm.test(`*** F E T C H - C A N D I D A T E S ***  ==>  ${response.data.candidates[0].firstName}`, () => {",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDateTime\": \"{{startdate}}\",\n    \"endDateTime\": \"{{enddate}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/ats/kpmg/fetchFinalStatusCandidateDetails/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"ats",
+								"kpmg",
+								"fetchFinalStatusCandidateDetails",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Status - Missing Mandatory startDatetime",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"startdate\", moment().subtract(1, \"days\").format((\"YYYY-MM-DD HH:59:59\")));",
+									"pm.environment.set(\"enddate\", moment().format((\"YYYY-MM-DD HH:59:59\")));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response.error) {",
+									"    pm.test(`*** M I S S I N G - S T A R T - D A T E ***  ==>  ${response.error.message}`, () => {",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"endDateTime\": \"{{enddate}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/ats/kpmg/fetchFinalStatusCandidateDetails/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"ats",
+								"kpmg",
+								"fetchFinalStatusCandidateDetails",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Status - Missing endDateTime - wrong endDateTime",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"startdate\", moment().subtract(1, \"days\").format((\"YYYY-MM-DD HH:59:59\")));",
+									"pm.environment.set(\"enddate\", moment().format((\"YYYY-MM-DD HH:59:59\")));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response.error) {",
+									"    pm.test(`*** M I S S I N G - E N D - D A T E ***  ==>  ${response.error.message}`, () => {",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDateTime\": \"{{startdate}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/ats/kpmg/fetchFinalStatusCandidateDetails/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"ats",
+								"kpmg",
+								"fetchFinalStatusCandidateDetails",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Status - wrong endDateTime",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"startdate\", moment().subtract(1, \"days\").format((\"YYYY-MM-DD HH:59:59\")));",
+									"pm.environment.set(\"enddate\", moment().format((\"YYYY-MM-DD HH:59:59\")));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response.error) {",
+									"    pm.test(`*** W R O N G - E N D - D A T E ***  ==>  ${response.error.message}`, () => {",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDateTime\": \"{{startdate}}\",\n    \"endDateTime\": \"{{enddates}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/ats/kpmg/fetchFinalStatusCandidateDetails/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"ats",
+								"kpmg",
+								"fetchFinalStatusCandidateDetails",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Status - wrong startDateTim",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"startdate\", moment().subtract(1, \"days\").format((\"YYYY-MM-DD HH:59:59\")));",
+									"pm.environment.set(\"enddate\", moment().format((\"YYYY-MM-DD HH:59:59\")));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response.error) {",
+									"    pm.test(`*** W R O N G - S T A R T - D A T E ***  ==>  ${response.error.message}`, () => {",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDateTime\": \"{{startdates}}\",\n    \"endDateTime\": \"{{enddate}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/ats/kpmg/fetchFinalStatusCandidateDetails/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"ats",
+								"kpmg",
+								"fetchFinalStatusCandidateDetails",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Status - greater than the endDateTime",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"startdate\", moment().subtract(1, \"days\").format((\"YYYY-MM-DD HH:59:59\")));",
+									"pm.environment.set(\"enddate\", moment().format((\"YYYY-MM-DD HH:59:59\")));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response.error) {",
+									"    pm.test(`*** G R E A T E R - T H A N - E N D - D A T E ***  ==>  ${response.error.message}`, () => {",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDateTime\": \"{{enddate}}\",\n    \"endDateTime\": \"{{startdate}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/ats/kpmg/fetchFinalStatusCandidateDetails/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"ats",
+								"kpmg",
+								"fetchFinalStatusCandidateDetails",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Status - startDateTime is less than the range",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"startdate\", moment().subtract(3, \"days\").format((\"YYYY-MM-DD HH:59:59\")));",
+									"pm.environment.set(\"enddate\", moment().format((\"YYYY-MM-DD HH:59:59\")));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response.error) {",
+									"    pm.test(`*** L E S S - T H A N - S T A R T - D A T E ***  ==>  ${response.error.message}`, () => {",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDateTime\": \"{{startdate}}\",\n    \"endDateTime\": \"{{enddate}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/ats/kpmg/fetchFinalStatusCandidateDetails/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"ats",
+								"kpmg",
+								"fetchFinalStatusCandidateDetails",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Status - should be in the range of 24 hours",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"startdate\", moment().subtract(2, \"days\").format((\"YYYY-MM-DD HH:59:59\")));",
+									"pm.environment.set(\"enddate\", moment().format((\"YYYY-MM-DD HH:59:59\")));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response.error) {",
+									"    pm.test(`*** R A N G E - 2 4 H R S ***  ==>  ${response.error.message}`, () => {",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{OAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDateTime\": \"{{startdate}}\",\n    \"endDateTime\": \"{{enddate}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/ats/kpmg/fetchFinalStatusCandidateDetails/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"ats",
+								"kpmg",
+								"fetchFinalStatusCandidateDetails",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Status - Internal Server error",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"startdate\", moment().subtract(2, \"days\").format((\"YYYY-MM-DD HH:59:59\")));",
+									"pm.environment.set(\"enddate\", moment().format((\"YYYY-MM-DD HH:59:59\")));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response.error) {",
+									"    pm.test(`*** E R R O R ***  ==>  ${response.error.message}`, () => {",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "test",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDateTime\": \"{{startdate}}\",\n    \"endDateTime\": \"{{enddate}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/ats/kpmg/fetchFinalStatusCandidateDetails/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"ats",
+								"kpmg",
+								"fetchFinalStatusCandidateDetails",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Status - Session Expired",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require(\"moment\")",
+									"pm.environment.set(\"startdate\", moment().subtract(1, \"days\").format((\"YYYY-MM-DD HH:59:59\")));",
+									"pm.environment.set(\"enddate\", moment().format((\"YYYY-MM-DD HH:59:59\")));",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// parse the response object",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"if (response.error) {",
+									"    pm.test(`*** S E S S I O N***  ==>  ${response.error.ErrorMessage}`, () => {",
+									"    })",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer Tkn:a28af260-dac1-4ad3-aeed-0f1685fcfc7e",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDateTime\": \"{{startdate}}\",\n    \"endDateTime\": \"{{enddate}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/py/ats/kpmg/fetchFinalStatusCandidateDetails/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"py",
+								"ats",
+								"kpmg",
+								"fetchFinalStatusCandidateDetails",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
